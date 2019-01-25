@@ -20,7 +20,7 @@ namespace Timesheets
         }
 
         public async Task<ProjectInfo> Get(long projectId) =>
-            await new GetProjectCommand(DoGet, DoGetFromCache, projectId).ExecuteAsync();
+            await new Timesheets.GetProjectCommand(DoGet, DoGetFromCache, projectId).ExecuteAsync();
 
         private async Task<ProjectInfo> DoGet(long projectId)
         {
