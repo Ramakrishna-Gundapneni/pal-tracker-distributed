@@ -12,7 +12,11 @@ using Steeltoe.Common.Discovery;
 using Steeltoe.CircuitBreaker.Hystrix;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Steeltoe.Security.Authentication.CloudFoundry;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+
 namespace TimesheetsServer
 {
     public class Startup
@@ -28,7 +32,7 @@ namespace TimesheetsServer
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-             services.AddMvc(mvcOptions =>
+            services.AddMvc(mvcOptions =>
             {
                 if (!Configuration.GetValue("DISABLE_AUTH", false))
                 {
@@ -48,9 +52,9 @@ namespace TimesheetsServer
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IProjectClient>(sp =>
             {
-                var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
+                
+				var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
 				var httpClient = new HttpClient(handler, false)
-           
                 {
                     BaseAddress = new Uri(Configuration.GetValue<string>("REGISTRATION_SERVER_ENDPOINT"))
                 };
@@ -62,6 +66,7 @@ namespace TimesheetsServer
             });
 			services.AddHystrixMetricsStream(Configuration);
 			services.AddDiscoveryClient(Configuration);
+
 			
         }
 
@@ -74,7 +79,7 @@ namespace TimesheetsServer
             app.UseMvc();
 			app.UseDiscoveryClient();
 			app.UseHystrixMetricsStream();
-            app.UseHystrixRequestContext();
+			app.UseHystrixRequestContext();
         }
     }
 }

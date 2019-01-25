@@ -12,7 +12,11 @@ using Steeltoe.Common.Discovery;
 using Steeltoe.CircuitBreaker.Hystrix;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Steeltoe.Security.Authentication.CloudFoundry;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 
 namespace AllocationsServer
 {
@@ -29,7 +33,7 @@ namespace AllocationsServer
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-             services.AddMvc(mvcOptions =>
+            services.AddMvc(mvcOptions =>
             {
                 if (!Configuration.GetValue("DISABLE_AUTH", false))
                 {
@@ -48,8 +52,8 @@ namespace AllocationsServer
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IProjectClient>(sp =>
             {
-                 var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
-                 var httpClient = new HttpClient(handler, false)
+                var handler = new DiscoveryHttpClientHandler(sp.GetService<IDiscoveryClient>());
+				var httpClient = new HttpClient(handler, false)
                 {
                     BaseAddress = new Uri(Configuration.GetValue<string>("REGISTRATION_SERVER_ENDPOINT"))
                 };
@@ -61,7 +65,6 @@ namespace AllocationsServer
             });
 			services.AddHystrixMetricsStream(Configuration);
 			services.AddDiscoveryClient(Configuration);
-			
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,7 +76,7 @@ namespace AllocationsServer
             app.UseMvc();
 			app.UseDiscoveryClient();
 			app.UseHystrixMetricsStream();
-            app.UseHystrixRequestContext();
+			app.UseHystrixRequestContext();
         }
     }
 }
